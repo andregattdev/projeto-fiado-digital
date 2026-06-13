@@ -1,0 +1,23 @@
+{
+  "name": "Fiado Digital",
+  "short_name": "FiadoDigital",
+  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "assets/icons/grana.ico",
+      "sizes": "72x72",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/grana.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ]
+}

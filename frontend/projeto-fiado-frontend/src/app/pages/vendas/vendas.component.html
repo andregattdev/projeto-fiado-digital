@@ -1,0 +1,209 @@
+<div class="vendas-container">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h1>Vendas</h1>
+      <p class="subtitle">Registre e gerencie o fiado</p>
+    </div>
+    <button mat-flat-button class="btn-primary" (click)="toggleNovaVenda()">
+      <mat-icon>{{ mostrarFormVenda ? 'close' : 'add_shopping_cart' }}</mat-icon>
+      {{ mostrarFormVenda ? 'Cancelar' : 'Nova Venda Fiado' }}
+    </button>
+  </div>
+
+  <!-- FORMULÁRIO DE NOVA VENDA -->
+  <div class="form-card" *ngIf="mostrarFormVenda">
+    <h2>Nova Venda Fiado</h2>
+    <form [formGroup]="vendaForm" (ngSubmit)="salvarVenda()">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cliente *</mat-label>
+        <mat-select formControlName="clienteId">
+          <mat-option *ngFor="let c of clientes" [value]="c.id">{{ c.nome }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="cpf-confirmacao" *ngIf="cpfClienteSelecionado">
+        <mat-icon>verified_user</mat-icon>
+        <div class="cpf-info">
+          <span class="cpf-label">CPF do cliente (confirmação)</span>
+          <span class="cpf-valor">{{ cpfClienteSelecionado | cpf }}</span>
+        </div>
+      </div>
+
+      <div class="cpf-confirmacao cpf-sem-cpf" *ngIf="vendaForm.get('clienteId')?.value && !cpfClienteSelecionado">
+        <mat-icon>warning</mat-icon>
+        <div class="cpf-info">
+          <span class="cpf-label">Atenção</span>
+          <span class="cpf-valor">Este cliente não possui CPF cadastrado</span>
+        </div>
+      </div>
+
+      <div class="itens-header">
+        <h3>Itens da Venda</h3>
+        <!-- ✅ BOTÃO ADICIONAR ITEM ESTILIZADO -->
+        <button mat-flat-button type="button" class="btn-primary btn-sm" (click)="adicionarItem()">
+          <mat-icon>add</mat-icon> Adicionar Item
+        </button>
+      </div>
+
+      <div formArrayName="itens" class="itens-list">
+        <div class="item-row" *ngFor="let item of itens.controls; let i = index" [formGroupName]="i">
+          <mat-form-field appearance="outline">
+            <mat-label>Produto</mat-label>
+            <input matInput formControlName="produto" placeholder="Ex: Pão, Leite..." />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-small">
+            <mat-label>Qtd</mat-label>
+            <input matInput type="number" formControlName="quantidade" min="1" (input)="calcularTotalItem(i)" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Preço Unit.</mat-label>
+            <input matInput type="number" formControlName="precoUnitario" step="0.01" (input)="calcularTotalItem(i)" />
+            <span matPrefix>R$ </span>
+          </mat-form-field>
+
+          <div class="subtotal-display">
+            <span class="subtotal-label">Subtotal</span>
+            <span class="subtotal-value">{{ getSubtotal(i) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+
+          <button mat-icon-button type="button" class="btn-remove" (click)="removerItem(i)" *ngIf="itens.length > 1">
+            <mat-icon color="warn">remove_circle</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="total-row">
+        <span class="total-label">Total da Venda:</span>
+        <span class="total-value">{{ calcularTotal() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Observação</mat-label>
+        <textarea matInput formControlName="observacao" rows="2" placeholder="Observação opcional..."></textarea>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" class="btn-secondary" (click)="toggleNovaVenda()">
+          <mat-icon>close</mat-icon> Cancelar
+        </button>
+        <!-- ✅ BOTÃO REGISTRAR FIADO ESTILIZADO E ALINHADO -->
+        <button mat-flat-button type="submit" class="btn-primary btn-lg" [disabled]="vendaForm.invalid || salvando">
+          <mat-spinner *ngIf="salvando" diameter="18" class="spinner-btn"></mat-spinner>
+          <mat-icon *ngIf="!salvando">save</mat-icon>
+          Registrar Fiado
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="filter-select">
+      <mat-label>Filtrar por cliente</mat-label>
+      <mat-select [(ngModel)]="clienteFiltroId" (selectionChange)="filtrarVendas()">
+        <mat-option [value]="null">Todos os clientes</mat-option>
+        <mat-option *ngFor="let c of clientes" [value]="c.id">{{ c.nome }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="toggle-group">
+      <button type="button" class="toggle-btn" [class.active]="!apenasEmAberto"
+              (click)="apenasEmAberto = false; filtrarVendas()">Todas</button>
+      <button type="button" class="toggle-btn" [class.active]="apenasEmAberto"
+              (click)="apenasEmAberto = true; filtrarVendas()">Em Aberto</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- LISTAGEM -->
+  <div class="vendas-list" *ngIf="!loading">
+
+    <div *ngIf="vendasAgrupadas.length === 0" class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <p>Nenhuma venda encontrada.</p>
+    </div>
+
+    <mat-accordion multi="false" *ngIf="vendasAgrupadas.length > 0">
+      <mat-expansion-panel *ngFor="let grupo of vendasAgrupadas">
+
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="venda-cliente-info">
+              <div class="cliente-meta">
+                <span class="venda-cliente-nome">{{ grupo.nomeCliente }}</span>
+                <span class="venda-data">{{ grupo.totalCompras }} venda(s)</span>
+              </div>
+            </div>
+          </mat-panel-title>
+
+          <mat-panel-description>
+            <strong [class.vermelho]="grupo.saldoDevedorTotal > 0">
+              {{ grupo.saldoDevedorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </strong>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="historico-cliente-container">
+          <h3>Histórico Detalhado de Compras</h3>
+
+          <div class="venda-card" *ngFor="let v of grupo.compras">
+            <div class="venda-card-header">
+              <div class="venda-data-info">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Venda em {{ v.dataVenda | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}</span>
+              </div>
+              <span class="badge" [class.badge-aberta]="v.ativa && v.saldoDevedor > 0"
+                    [class.badge-paga]="v.saldoDevedor <= 0" [class.badge-cancelada]="!v.ativa">
+                {{ !v.ativa ? 'Cancelada' : (v.saldoDevedor > 0 ? 'Aguardando Pagamento' : 'Paga') }}
+              </span>
+            </div>
+
+            <div class="venda-card-body">
+              <div class="venda-itens-container" *ngIf="v.itens && v.itens.length > 0">
+                <div class="venda-item-linha" *ngFor="let item of v.itens">
+                  <span class="item-nome">{{ item.produto }}</span>
+                  <span class="item-valores-detalhe">
+                    {{ item.quantidade }}x R$ {{ item.precoUnitario | number:'1.2-2' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="venda-valores-row">
+                <span>Total: <strong>{{ v.valorTotal | currency:'BRL' }}</strong></span>
+                <span>Pago: <strong class="verde">{{ v.valorPago | currency:'BRL' }}</strong></span>
+                <span>Saldo: <strong [class.vermelho]="v.saldoDevedor > 0" [class.verde]="v.saldoDevedor <= 0">
+                  {{ v.saldoDevedor | currency:'BRL' }}
+                </strong></span>
+              </div>
+
+              <p class="venda-obs" *ngIf="v.observacao">
+                <strong>Obs:</strong> {{ v.observacao }}
+              </p>
+            </div>
+
+            <div class="venda-card-footer" *ngIf="v.ativa">
+              <button mat-flat-button class="btn-pagamento" (click)="registrarPagamento(v)" *ngIf="v.saldoDevedor > 0" type="button">
+                <mat-icon>payment</mat-icon> Abater Valor
+              </button>
+              <button mat-flat-button class="btn-whatsapp" (click)="compartilharVendaWhatsApp(v)" type="button">
+                <mat-icon>share</mat-icon> Enviar WhatsApp
+              </button>
+              <button mat-flat-button class="btn-cancelar" (click)="cancelarVenda(v)" type="button">
+                <mat-icon>cancel</mat-icon> Cancelar Venda
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

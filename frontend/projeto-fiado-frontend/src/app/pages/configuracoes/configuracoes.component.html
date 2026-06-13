@@ -1,0 +1,89 @@
+<div class="configuracoes-container">
+  <div class="page-header">
+    <div>
+      <h1>Configurações</h1>
+      <p class="subtitle">Gerencie as informações do seu comércio</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h2>Dados do Comércio</h2>
+    
+    <form [formGroup]="form" (ngSubmit)="salvar()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome da Loja / Fantasia *</mat-label>
+          <input matInput formControlName="nomeLoja" placeholder="Ex: Padaria do Zé, Mercadinho Silva..." />
+          <mat-error *ngIf="form.get('nomeLoja')?.hasError('required')">Nome da loja é obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nome do Responsável *</mat-label>
+          <input matInput formControlName="nomeResponsavel" placeholder="Ex: José da Silva..." />
+          <mat-error *ngIf="form.get('nomeResponsavel')?.hasError('required')">Nome do responsável é obrigatório</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>E-mail de Acesso (Não alterável)</mat-label>
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>CNPJ da loja (opcional)</mat-label>
+          <input matInput formControlName="cnpj" placeholder="Ex: 00.000.000/0000-00" />
+        </mat-form-field>
+
+        <div class="telefone-field-container">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Telefone / WhatsApp Comercial</mat-label>
+            <input matInput formControlName="telefone" placeholder="Ex: (11) 99999-9999" />
+            <mat-icon matSuffix>chat</mat-icon>
+          </mat-form-field>
+          <p class="help-text">
+            <mat-icon class="help-icon">info</mat-icon>
+            Este é o número do WhatsApp de onde os clientes receberão as mensagens e para onde poderão enviar respostas ou comprovantes.
+          </p>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+      
+      <div class="senha-section-header">
+        <h2>Segurança</h2>
+        <p class="subtitle">Preencha apenas se desejar alterar a sua senha de acesso</p>
+      </div>
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Senha Atual</mat-label>
+          <input matInput type="password" formControlName="senhaAtual" placeholder="Digite sua senha atual" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nova Senha</mat-label>
+          <input matInput type="password" formControlName="novaSenha" placeholder="Mínimo 8 caracteres" />
+          <mat-hint>Use pelo menos 1 letra maiúscula e 1 caractere especial (!@#$)</mat-hint>
+          
+          <mat-error *ngIf="form.get('novaSenha')?.hasError('minlength')">
+            A nova senha deve ter no mínimo 8 caracteres.
+          </mat-error>
+          <mat-error *ngIf="form.get('novaSenha')?.hasError('pattern') && !form.get('novaSenha')?.hasError('minlength')">
+            A senha precisa de uma letra maiúscula e um caractere especial.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" style="margin-top: 10px;">
+          <mat-label>Confirmar Nova Senha</mat-label>
+          <input matInput type="password" formControlName="confirmarNovaSenha" placeholder="Repita a nova senha" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || salvando">
+          <mat-spinner *ngIf="salvando" diameter="16"></mat-spinner>
+          Salvar Configurações
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

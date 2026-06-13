@@ -1,0 +1,19 @@
+Sistema de Controle de Fiado Digital ("Caderneta Digital")
+Muitos mercadinhos, padarias e salões de beleza de bairro ainda usam a famosa caderneta de papel para marcar o "fiado" dos clientes conhecidos. O papel rasga, molha, some e dificulta o cálculo do total de dívidas.
+
+O que o programa faz: Um cadastro simples de clientes com um histórico de compras a prazo. O comerciante clica no cliente, digita o valor da compra e o sistema soma automaticamente. Ao final do mês, gera um relatório de quem está devendo e há quanto tempo.
+
+O gancho para vender: "Seu José, chega de perder dinheiro porque esqueceu de anotar um pão ou porque a folha do caderno rasgou. Com esse sistema, o senhor sabe exatamente quem deve e quanto deve em dois cliques."
+
+Funcionalidades Principais
+
+Cadastro de Clientes
+Nova Venda Fiado → Escolher cliente + adicionar vários itens (produto, qtd, preço)
+Visualizar Comprovante da venda com todos os itens
+Registrar Pagamento (pode ser parcial)
+Consulta de Dívidas por cliente
+Dashboard do Dono:
+Total a receber
+Dívidas vencidas (mais de 30 dias, por exemplo)
+Ranking dos maiores devedores
+Vendas por período

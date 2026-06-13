@@ -1,0 +1,42 @@
+/* You can add global styles to this file, and also import other style files */
+* {
+  box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho do elemento */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-x: hidden; /* Impede que a tela role para os lados no celular */
+  font-family: sans-serif;
+  -webkit-tap-highlight-color: transparent; /* Remove aquele quadrado azul feio ao tocar em botões no celular */
+}
+
+/* Estilo padrão (Celular primeiro - Mobile First) */
+.container-vendas {
+  display: flex;
+  flex-direction: column; /* Fica em lista no celular */
+  gap: 15px;
+  padding: 10px;
+}
+
+/* Ajuste para telas maiores (Notebooks/Tablets deitados) */
+@media (min-width: 768px) {
+  .container-vendas {
+    flex-direction: row; /* Fica lado a lado no PC */
+    padding: 20px;
+  }
+}
+
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}

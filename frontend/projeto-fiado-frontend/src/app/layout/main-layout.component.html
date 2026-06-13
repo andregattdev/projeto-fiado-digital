@@ -1,0 +1,63 @@
+<div class="app-layout">
+  
+  <header class="top-bar-mobile">
+    <div class="logo-area">
+      <mat-icon class="logo-icon">store</mat-icon>
+      <span class="logo-text" *ngIf="auth.comercioLogado() as c">{{ c.nomeLoja }}</span>
+      <span class="logo-text" *ngIf="!auth.comercioLogado()">Fiado Digital</span>
+    </div>
+    <button mat-icon-button class="btn-sair-mobile" (click)="sair()" type="button" title="Sair">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </header>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-area">
+        <mat-icon class="logo-icon">store</mat-icon>
+        <span class="logo-text">Vendo_FiadoApp<span class="accent-text">Digital</span></span>
+      </div>
+      <p class="tagline" *ngIf="auth.comercioLogado() as c">
+        {{ c.nomeLoja }}
+        <span *ngIf="c.cnpj" style="display: block; font-size: 0.7rem; opacity: 0.8; margin-top: 4px; text-transform: none; font-weight: normal;">CNPJ: {{ c.cnpj | cnpj }}</span>
+      </p>
+      <p class="tagline" *ngIf="!auth.comercioLogado()">Caderneta Inteligente</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <mat-icon>dashboard</mat-icon>
+        <span>Painel</span>
+      </a>
+      <a routerLink="/clientes" routerLinkActive="active" class="nav-item">
+        <mat-icon>people</mat-icon>
+        <span>Clientes</span>
+      </a>
+      <a routerLink="/vendas" routerLinkActive="active" class="nav-item">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Vendas</span> </a>
+      <a routerLink="/relatorios" routerLinkActive="active" class="nav-item">
+        <mat-icon>assessment</mat-icon>
+        <span>Relatórios</span>
+      </a>
+      <a routerLink="/configuracoes" routerLinkActive="active" class="nav-item">
+        <mat-icon>settings</mat-icon>
+        <span>Config</span> </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-status" *ngIf="auth.comercioLogado() as c">
+        <span class="status-dot"></span>
+        <span>{{ c.nomeResponsavel }}</span>
+      </div>
+      <button mat-button class="btn-sair" (click)="sair()" type="button">
+        <mat-icon>logout</mat-icon>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-container">
+    <router-outlet></router-outlet>
+  </main>
+</div>

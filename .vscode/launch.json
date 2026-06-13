@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ProjetoFiadoDigitalApplication<Projeto-fiado-digital>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.app.Projeto.fiado.digital.ProjetoFiadoDigitalApplication",
+            "projectName": "Projeto-fiado-digital",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -1,0 +1,166 @@
+<div class="clientes-container">
+  <div class="page-header">
+    <div class="header-titulos">
+      <h1> Clientes</h1>
+      <p class="subtitle">Gerencie sua clientela</p>
+    </div>
+    <button class="btn-primary btn-novo-cliente" (click)="abrirFormulario()">
+      <mat-icon>person_add</mat-icon> Novo Cliente
+    </button>
+  </div>
+
+  <div class="search-bar">
+    <mat-icon>search</mat-icon>
+    <input type="text" placeholder="Buscar cliente por nome..." [(ngModel)]="termoBusca" (input)="buscar()" />
+    <button *ngIf="termoBusca" class="btn-clear" (click)="limparBusca()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="form-card" *ngIf="mostrarFormulario">
+    <h2>{{ editando ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="salvar()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Nome *</mat-label>
+          <input matInput formControlName="nome" placeholder="Nome completo" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>CPF *</mat-label>
+          <input matInput formControlName="cpf" placeholder="000.000.000-00" />
+        </mat-form-field>
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Telefone</mat-label>
+          <input matInput formControlName="telefone" placeholder="(99) 99999-9999" />
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Data de Nascimento</mat-label>
+          <input matInput type="date" formControlName="dataNascimento" />
+        </mat-form-field>
+      </div>
+      
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Endereço</mat-label>
+          <input matInput formControlName="endereco" placeholder="Rua, número, bairro" />
+        </mat-form-field>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelarFormulario()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || salvando">
+          <mat-spinner *ngIf="salvando" diameter="16"></mat-spinner>
+          {{ editando ? 'Atualizar' : 'Cadastrar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="tabela-card" *ngIf="!loading">
+    <div class="tabela-header">
+      <span class="total-badge">{{ clientes.length }} cliente(s)</span>
+    </div>
+    
+    <div *ngIf="clientes.length === 0" class="empty-state">
+      <mat-icon>person_off</mat-icon>
+      <p>Nenhum cliente encontrado.</p>
+      <button class="btn-primary" (click)="abrirFormulario()">Cadastrar primeiro cliente</button>
+    </div>
+
+    <table *ngIf="clientes.length > 0" class="clientes-table ocultar-mobile">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>Telefone</th>
+          <th>Endereço</th>
+          <th>Total Devido</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clientes">
+          <td class="nome-cell">
+            <div class="avatar">{{ c.nome.charAt(0).toUpperCase() }}</div>
+            <span>{{ c.nome }}</span>
+          </td>
+          <td>{{ c.cpf | cpf }}</td>
+          <td>{{ c.telefone || '—' }}</td>
+          <td>{{ c.endereco || '—' }}</td>
+          <td>
+            <span class="badge-devedor" *ngIf="c.totalDevido && c.totalDevido > 0">
+              {{ c.totalDevido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+            <span class="badge-zerado" *ngIf="!c.totalDevido || c.totalDevido === 0">Sem dívida</span>
+          </td>
+          <td class="acoes-cell">
+            <button class="btn-icon azul" title="Nova Venda" [routerLink]="['/vendas/nova']" [queryParams]="{clienteId: c.id}">
+              <mat-icon>add_shopping_cart</mat-icon>
+            </button>
+            <button class="btn-icon verde" title="Cobrar via WhatsApp" (click)="compartilharSaldoWhatsApp(c)" *ngIf="c.totalDevido && c.totalDevido > 0">
+              <mat-icon>chat</mat-icon>
+            </button>
+            <button class="btn-icon laranja" title="Editar" (click)="editarCliente(c)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button class="btn-icon vermelho" title="Excluir" (click)="confirmarExclusao(c)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="clientes.length > 0" class="cards-container-mobile exibir-mobile">
+      <div class="cliente-mobile-card" *ngFor="let c of clientes">
+        
+        <div class="card-mobile-top">
+          <div class="nome-cell">
+            <div class="avatar">{{ c.nome.charAt(0).toUpperCase() }}</div>
+            <div class="dados-principais">
+              <span class="nome-txt">{{ c.nome }}</span>
+              <span class="sub-txt">CPF: {{ c.cpf | cpf }}</span>
+            </div>
+          </div>
+          <div class="financeiro-status">
+            <span class="badge-devedor" *ngIf="c.totalDevido && c.totalDevido > 0">
+              {{ c.totalDevido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+            <span class="badge-zerado" *ngIf="!c.totalDevido || c.totalDevido === 0">Sem dívida</span>
+          </div>
+        </div>
+
+        <div class="card-mobile-body" *ngIf="c.telefone || c.endereco">
+          <p *ngIf="c.telefone"><mat-icon>phone</mat-icon> {{ c.telefone }}</p>
+          <p *ngIf="c.endereco"><mat-icon>location_on</mat-icon> {{ c.endereco }}</p>
+        </div>
+
+        <div class="card-mobile-actions">
+          <button class="btn-mobile-acao azul" [routerLink]="['/vendas/nova']" [queryParams]="{clienteId: c.id}">
+            <mat-icon>add_shopping_cart</mat-icon> <span>Venda</span>
+          </button>
+          <button class="btn-mobile-acao verde" (click)="compartilharSaldoWhatsApp(c)" *ngIf="c.totalDevido && c.totalDevido > 0">
+            <mat-icon>chat</mat-icon> <span>Cobrar</span>
+          </button>
+          <button class="btn-mobile-acao laranja" (click)="editarCliente(c)">
+            <mat-icon>edit</mat-icon> <span>Editar</span>
+          </button>
+          <button class="btn-mobile-acao vermelho" (click)="confirmarExclusao(c)">
+            <mat-icon>delete</mat-icon> <span>Excluir</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

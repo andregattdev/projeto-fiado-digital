@@ -1,0 +1,133 @@
+<div class="relatorio-container">
+  <header class="page-header no-print">
+    <h1>Relatórios</h1>
+    <p class="subtitle">Fechamento mensal e vendas por período</p>
+  </header>
+
+  <section class="section-card no-print">
+    <h2><mat-icon>calendar_month</mat-icon> Relatório mensal</h2>
+    <div class="filtros">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Mês</mat-label>
+        <mat-select [(ngModel)]="mes">
+          <mat-option *ngFor="let m of meses" [value]="m.valor">{{ m.nome }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Ano</mat-label>
+        <mat-select [(ngModel)]="ano">
+          <mat-option *ngFor="let a of anos" [value]="a">{{ a }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button color="primary" class="btn-primary" (click)="gerarRelatorioMensal()">Gerar relatório</button>
+      <button mat-stroked-button (click)="imprimir()" [disabled]="!relatorio">Imprimir</button>
+    </div>
+  </section>
+
+  <div *ngIf="loadingMensal" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <section class="section-card relatorio-print" *ngIf="!loadingMensal && relatorio">
+    <h2>Relatório — {{ nomeMesAtual }}/{{ ano }}</h2>
+
+    <div class="resumo-grid">
+      <div class="resumo-item">
+        <span class="label">Vendas no mês</span>
+        <strong>{{ relatorio.totalVendasNoMes | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+      </div>
+      <div class="resumo-item">
+        <span class="label">Recebido no mês</span>
+        <strong>{{ relatorio.totalRecebidoNoMes | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+      </div>
+      <div class="resumo-item">
+        <span class="label">Saldo devedor total</span>
+        <strong class="vermelho">{{ relatorio.saldoDevedorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+      </div>
+      <div class="resumo-item">
+        <span class="label">Clientes devedores</span>
+        <strong>{{ relatorio.quantidadeDevedores }}</strong>
+      </div>
+    </div>
+
+    <h3>Quem deve e há quanto tempo</h3>
+    <table class="tabela-relatorio"
+      *ngIf="relatorio && relatorio.devedores && relatorio.devedores.length > 0; else semDevedores">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>CPF</th>
+          <th>Telefone</th>
+          <th>Total devido</th>
+          <th>Dívida mais antiga</th>
+          <th>Dias em atraso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of relatorio.devedores">
+          <td data-label="Cliente">{{ d.nome }}</td>
+          <td data-label="CPF">{{ d.cpf ? (d.cpf | cpf) : '—' }}</td>
+          <td data-label="Telefone">{{ d.telefone || '—' }}</td>
+          <td data-label="Total devido">{{ d.totalDevido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+          <td data-label="Dívida mais antiga">{{ d.vendaMaisAntiga | date:'dd/MM/yyyy' }}</td>
+          <td data-label="Dias em atraso">
+            <span [ngClass]="{ 'atraso-alto': d.diasEmAtraso > 30 }">
+              {{ d.diasEmAtraso }} dias
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #semDevedores>
+      <p class="empty-msg">Nenhum cliente com saldo devedor no momento.</p>
+    </ng-template>
+  </section>
+
+  <section class="section-card no-print">
+    <h2><mat-icon>date_range</mat-icon> Vendas por período</h2>
+    <div class="filtros">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Data início</mat-label>
+        <input matInput type="date" [(ngModel)]="dataInicio" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Data fim</mat-label>
+        <input matInput type="date" [(ngModel)]="dataFim" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="buscarVendasPeriodo()">Buscar</button>
+    </div>
+
+    <div *ngIf="loadingPeriodo" class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <div *ngIf="!loadingPeriodo && vendasPeriodo">
+      <div class="resumo-grid compact">
+        <div class="resumo-item">
+          <span class="label">Quantidade</span>
+          <strong>{{ vendasPeriodo.quantidadeVendas }}</strong>
+        </div>
+        <div class="resumo-item">
+          <span class="label">Total vendas</span>
+          <strong>{{ vendasPeriodo.totalVendas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+        </div>
+        <div class="resumo-item">
+          <span class="label">Total recebido</span>
+          <strong>{{ vendasPeriodo.totalRecebido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+        </div>
+      </div>
+      <ul class="vendas-periodo-list" *ngIf="vendasPeriodo.vendas.length > 0">
+        <li *ngFor="let v of vendasPeriodo.vendas">
+          <span>{{ v.nomeCliente }} — {{ v.dataVenda | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}</span>
+          <span>{{ v.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            <small *ngIf="v.saldoDevedor > 0">(deve {{ v.saldoDevedor | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }})</small>
+          </span>
+        </li>
+      </ul>
+      <p *ngIf="vendasPeriodo.vendas.length === 0" class="empty-msg">Nenhuma venda neste período.</p>
+    </div>
+  </section>
+
+  <p class="voltar no-print"><a routerLink="/dashboard">← Voltar ao painel</a></p>
+</div>

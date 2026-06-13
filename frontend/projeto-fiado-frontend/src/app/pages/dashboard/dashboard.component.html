@@ -1,0 +1,183 @@
+<div class="dashboard-container">
+  <header class="page-header">
+    <h1>
+      
+      <span>Painel do Comerciante</span>
+    </h1>
+    <p class="subtitle" *ngIf="nomeLoja">Painel de <strong>{{ nomeLoja }}</strong> — só os seus clientes e vendas
+      aparecem aqui.</p>
+    <p class="subtitle" *ngIf="!nomeLoja">Visão geral do fiado digital da sua loja.</p>
+  </header>
+
+  <!-- ITEM 2: Ações Rápidas com Redirecionamento Inteligente -->
+  <section class="quick-actions" aria-label="Ações rápidas" *ngIf="!loading && !erroNoServidor">
+
+    <!-- 1. Nova Venda: Vai para /vendas enviando o comando para abrir o formulário -->
+    <a routerLink="/vendas" [queryParams]="{ acao: 'novo' }" mat-flat-button color="primary" class="btn-action">
+      <mat-icon>add_shopping_cart</mat-icon> Nova Venda
+    </a>
+
+    <!-- 2. Cadastrar Cliente: Vai para /clientes enviando o comando para abrir o formulário -->
+    <a routerLink="/clientes" [queryParams]="{ acao: 'novo' }" mat-stroked-button class="btn-action btn-azul">
+      <mat-icon>person_add</mat-icon> Cadastrar Cliente
+    </a>
+
+    <!-- 3. Receber Fiado: Vai para /vendas com o filtro focado em vendas abertas (prontas para pagamento) -->
+    <a routerLink="/vendas" mat-stroked-button class="btn-action btn-verde">
+      <mat-icon>price_check</mat-icon> Receber Fiado
+    </a>
+
+  </section>
+
+  <div *ngIf="loading" class="loading-state" aria-live="polite">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Carregando dados do painel...</p>
+  </div>
+
+  <div *ngIf="!loading && erroNoServidor" class="erro-state">
+    <mat-icon>cloud_off</mat-icon>
+    <p>Não foi possível conectar ao servidor. Verifique se o backend está rodando na porta 8080.</p>
+    <button mat-flat-button color="primary" (click)="carregarDadosDashboard()">Tentar novamente</button>
+  </div>
+
+  <ng-container *ngIf="!loading && dados">
+    <section class="cards-grid" aria-label="Indicadores financeiros">
+      <div class="stat-card verde">
+        <div class="stat-icon"><mat-icon>attach_money</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Total a Receber</span>
+          <strong class="stat-value">{{ dados.totalAReceber | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+          <a routerLink="/clientes" class="link-detalhes">Ver detalhes</a>
+        </div>
+      </div>
+
+      <div class="stat-card azul">
+        <div class="stat-icon"><mat-icon>today</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Recebido Hoje</span>
+          <strong class="stat-value">{{ dados.totalRecebidoHoje | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+          <a routerLink="/vendas" class="link-detalhes">Ver vendas</a>
+        </div>
+      </div>
+
+      <div class="stat-card laranja">
+        <div class="stat-icon"><mat-icon>receipt_long</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Vendas em Aberto</span>
+          <strong class="stat-value">{{ dados.quantidadeVendasEmAberto }}</strong>
+          <a routerLink="/vendas" class="link-detalhes">Ver detalhes</a>
+        </div>
+      </div>
+
+      <div class="stat-card vermelho">
+        <div class="stat-icon"><mat-icon>people</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-label">Clientes Devedores</span>
+          <strong class="stat-value">{{ dados.quantidadeClientesDevedores }}</strong>
+          <a routerLink="/clientes" class="link-detalhes">Ver detalhes</a>
+        </div>
+      </div>
+
+      <div class="stat-card vencido" [class.alerta-critico]="dados.quantidadeDividasVencidas > 0">
+        <div class="stat-icon">
+          <mat-icon>{{ dados.quantidadeDividasVencidas > 0 ? 'gavel' : 'warning' }}</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Dívidas Vencidas (+30 dias)</span>
+          <strong class="stat-value">{{ dados.quantidadeDividasVencidas }}</strong>
+          <span class="stat-sub">{{ dados.totalDividasVencidas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          <a routerLink="/relatorios" class="link-detalhes">Cobrar agora</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card chart-section" aria-label="Evolução financeira recente" *ngIf="!loading && dados">
+      <div class="section-header">
+        <h2><mat-icon>bar_chart</mat-icon> Evolução de Vendas e Recebimentos</h2>
+        <span class="stat-sub">Últimos 6 meses</span>
+      </div>
+      <div class="chart-container-wrapper">
+        <canvas #graficoFinancas></canvas>
+      </div>
+    </section>
+
+    <div class="section-grid">
+      <section class="section-card" aria-labelledby="titulo-vencidas">
+        <div class="section-header">
+          <h2 id="titulo-vencidas"><mat-icon>warning</mat-icon> Dívidas Vencidas</h2>
+          <a routerLink="/relatorios" class="link-ver-todos">Relatório completo</a>
+        </div>
+        <ul class="devedores-list" *ngIf="dados.dividasVencidas.length > 0; else semVencidas">
+          <li class="devedor-item" *ngFor="let d of dados.dividasVencidas">
+            <span class="rank-atraso">{{ d.diasEmAtraso }}d</span>
+            <div class="devedor-info">
+              <span class="devedor-nome">{{ d.nomeCliente }}</span>
+              <span class="devedor-tel">Venda de {{ d.dataVenda | date:'dd/MM/yyyy':'':'pt-BR' }}</span>
+            </div>
+            <span class="devedor-valor">{{ d.saldoDevedor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </li>
+        </ul>
+        <ng-template #semVencidas>
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>Nenhuma dívida vencida no momento.</p>
+          </div>
+        </ng-template>
+      </section>
+
+      <section class="section-card" aria-labelledby="titulo-devedores">
+        <div class="section-header">
+          <h2 id="titulo-devedores"><mat-icon>leaderboard</mat-icon> Maiores Devedores</h2>
+          <a routerLink="/clientes" class="link-ver-todos">Ver todos</a>
+        </div>
+        <ul class="devedores-list" *ngIf="dados.maioresDevedores.length > 0; else semDevedores">
+          <li class="devedor-item" *ngFor="let d of dados.maioresDevedores; let i = index">
+            <span class="rank">#{{ i + 1 }}</span>
+            <div class="devedor-info">
+              <span class="devedor-nome">{{ d.nome }}</span>
+              <span class="devedor-cpf">{{ d.cpf ? (d.cpf | cpf) : 'Sem CPF' }}</span>
+              <span class="devedor-tel">{{ d.telefone || 'Sem telefone' }}</span>
+            </div>
+            <span class="devedor-valor">{{ d.totalDevido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </li>
+        </ul>
+        <ng-template #semDevedores>
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>Nenhum devedor encontrado.</p>
+          </div>
+        </ng-template>
+      </section>
+
+      <section class="section-card" aria-labelledby="titulo-vendas">
+        <div class="section-header">
+          <h2 id="titulo-vendas"><mat-icon>history</mat-icon> Últimas Vendas</h2>
+          <a routerLink="/vendas" class="link-ver-todos">Ver todas</a>
+        </div>
+        <ul class="vendas-list" *ngIf="dados.ultimasVendas.length > 0; else semVendas">
+          <li class="venda-item" *ngFor="let v of dados.ultimasVendas">
+            <div class="venda-info">
+              <span class="venda-cliente">{{ v.nomeCliente }}</span>
+              <span class="venda-data">{{ v.dataVenda | date:'dd/MM/yyyy HH:mm':'':'pt-BR' }}</span>
+            </div>
+            <div class="venda-valores">
+              <span class="venda-total">{{ v.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              <span class="venda-saldo" [class.venda-paga]="v.saldoDevedor === 0"
+                [class.venda-pendente]="v.saldoDevedor > 0" [class.venda-cancelada]="!v.ativa">
+                {{ !v.ativa ? 'Cancelada' : (v.saldoDevedor > 0 ? (v.saldoDevedor |
+                currency:'BRL':'symbol':'1.2-2':'pt-BR') : 'Pago') }}
+              </span>
+            </div>
+          </li>
+        </ul>
+        <ng-template #semVendas>
+          <div class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <p>Nenhuma venda registrada.</p>
+            <a routerLink="/vendas" class="link-ver-todos">Registrar venda</a>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </ng-container>
+</div>

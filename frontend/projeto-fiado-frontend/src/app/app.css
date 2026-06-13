@@ -1,0 +1,256 @@
+/* Reset and Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f7f9fc;
+  color: #2c3e50;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Sidebar Styles (Padrão Computador) */
+.sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, #1e1e30 0%, #12121e 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  position: fixed;
+  height: 100vh;
+  box-sizing: border-box;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-header {
+  margin-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 20px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 2.2rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: linear-gradient(135deg, #6c63ff 0%, #3f3d9e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(108, 99, 255, 0.4));
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.logo-text .accent-text {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  margin-left: 2px;
+}
+
+.tagline {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  margin: 6px 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* Navigation Items */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  color: #b3b3c6;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item mat-icon {
+  font-size: 1.3rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  transition: transform 0.25s ease;
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.nav-item:hover mat-icon {
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, rgba(108, 99, 255, 0.05) 100%);
+  box-shadow: inset 3px 0 0 #6c63ff;
+}
+
+.nav-item.active mat-icon {
+  color: #6c63ff;
+  filter: drop-shadow(0 0 8px rgba(108, 99, 255, 0.6));
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #a4b0be;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #2ed573;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2ed573;
+  animation: pulseStatus 2s infinite;
+}
+
+.version {
+  font-size: 0.75rem;
+  color: #747d8c;
+  font-weight: 600;
+}
+
+/* ====================== BOTÕES PADRÃO ====================== */
+.btn-primary {
+  background: linear-gradient(135deg, #6c63ff 0%, #3f3d9e 100%);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 12px 28px;
+  transition: all 0.25s ease;
+  text-transform: none;
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(108, 99, 255, 0.4);
+}
+
+.btn-secondary {
+  border: 2px solid #6c63ff;
+  color: #6c63ff;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 10px 24px;
+  transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(108, 99, 255, 0.08);
+  color: #5a52e0;
+}
+
+/* Botões menores para mobile */
+@media (max-width: 768px) {
+  .btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@keyframes pulseStatus {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Painel de Conteúdo Principal (Visão PC) */
+.main-container {
+  flex-grow: 1;
+  margin-left: 280px; /* ESSENCIAL NO PC: Empurra o conteúdo para não sumir atrás da sidebar */
+  min-height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+  background-color: #f7f9fc;
+}
+
+/* ==========================================================================
+   MEDIA QUERY DE TRANSIÇÃO: CELULAR E TABLET EM PÉ
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  /* No celular, removemos totalmente o recuo da esquerda */
+  .main-container {
+    margin-left: 0 !important;
+    padding: 16px !important;
+    width: 100%;
+  }
+
+  ::ng-deep .mat-expansion-panel-header .mat-content,
+  ::ng-deep .mat-expansion-panel-header-title,
+  ::ng-deep .mat-expansion-panel-header-description {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Garante que o seu container customizado interno não herde larguras fixas */
+  .venda-cliente-info,
+  .cliente-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+
+  /* Reseta qualquer trava de texto em linha única que o Material coloque nos filhos */
+  ::ng-deep .mat-expansion-panel-header-title * {
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+}

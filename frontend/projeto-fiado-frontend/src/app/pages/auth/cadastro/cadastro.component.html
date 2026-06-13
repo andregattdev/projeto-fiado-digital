@@ -1,0 +1,86 @@
+<div class="auth-page">
+  <div class="auth-card auth-card-wide">
+    <div class="auth-header">
+      <mat-icon class="auth-logo">storefront</mat-icon>
+      <h1>Cadastrar comércio</h1>
+      <p>Cada comércio tem login e painel separados — seus clientes não veem os de outras lojas</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="cadastrar()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nome da loja</mat-label>
+        <input matInput formControlName="nomeLoja" />
+        <mat-error *ngIf="form.get('nomeLoja')?.hasError('required')">
+          O nome da loja é obrigatório.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Seu nome (responsável)</mat-label>
+        <input matInput formControlName="nomeResponsavel" />
+        <mat-error *ngIf="form.get('nomeResponsavel')?.hasError('required')">
+          O nome do responsável é obrigatório.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>E-mail de acesso</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error *ngIf="form.get('email')?.hasError('required')">
+          O e-mail é obrigatório.
+        </mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+          Insira um e-mail válido.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Telefone da loja</mat-label>
+        <input matInput formControlName="telefone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>CNPJ da loja (opcional)</mat-label>
+        <input matInput formControlName="cnpj" placeholder="Ex: 00.000.000/0000-00" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Senha</mat-label>
+        <input matInput type="password" formControlName="senha" />
+        
+        <mat-hint>Mínimo 8 caracteres, use 1 maiúscula e 1 caractere especial (!@#$)</mat-hint>
+
+        <mat-error *ngIf="form.get('senha')?.hasError('required')">
+          A senha é obrigatória.
+        </mat-error>
+
+        <mat-error *ngIf="form.get('senha')?.hasError('minlength')">
+          A senha deve ter no mínimo 8 caracteres.
+        </mat-error>
+
+        <mat-error *ngIf="form.get('senha')?.hasError('pattern') && !form.get('senha')?.hasError('minlength')">
+          A senha precisa de pelo menos uma letra maiúscula e um caractere especial.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" style="margin-top: 10px;">
+        <mat-label>Confirmar senha</mat-label>
+        <input matInput type="password" formControlName="confirmarSenha" />
+        <mat-error *ngIf="form.get('confirmarSenha')?.hasError('required')">
+          A confirmação de senha é obrigatória.
+        </mat-error>
+      </mat-form-field>
+
+      <p class="erro" *ngIf="erro">{{ erro }}</p>
+
+      <button mat-flat-button color="primary" class="full-width btn-submit" type="submit" [disabled]="loading || form.invalid">
+        <mat-spinner *ngIf="loading" diameter="22"></mat-spinner>
+        <span *ngIf="!loading">Criar conta</span>
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Já tem conta? <a routerLink="/login">Entrar</a>
+    </p>
+  </div>
+</div>

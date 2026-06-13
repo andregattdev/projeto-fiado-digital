@@ -1,0 +1,5 @@
+@import '../login/login.component.css';
+
+.auth-card-wide {
+  max-width: 480px;
+}
